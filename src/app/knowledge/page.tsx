@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import SearchBar from "@/components/SearchBar";
@@ -20,7 +20,7 @@ type Result = {
   isDemo: boolean;
 };
 
-export default function KnowledgePage() {
+function KnowledgeResults() {
   const searchParams = useSearchParams();
   const [results, setResults] = useState<Result[]>([]);
   const [categories, setCategories] = useState<{ id: string; name: string }[]>([]);
@@ -72,5 +72,13 @@ export default function KnowledgePage() {
         ))}
       </div>
     </div>
+  );
+}
+
+export default function KnowledgePage() {
+  return (
+    <Suspense fallback={<div className="text-sm text-[var(--muted)]">Loading…</div>}>
+      <KnowledgeResults />
+    </Suspense>
   );
 }
