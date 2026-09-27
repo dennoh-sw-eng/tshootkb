@@ -5,4 +5,9 @@
   package = "@netlify/plugin-nextjs"
 
 [build.environment]
-  NODE_VERSION = "20"
+  NODE_VERSION = "22"
+  # SUPABASE_STORAGE_BUCKET's value ("attachments") is not a secret — it's a
+  # public bucket name, and the word legitimately appears throughout the
+  # codebase (the Attachment model, /attachments routes, etc.), which was
+  # tripping Netlify's secrets scanner as a false positive.
+  SECRETS_SCAN_OMIT_KEYS = "SUPABASE_STORAGE_BUCKET"
