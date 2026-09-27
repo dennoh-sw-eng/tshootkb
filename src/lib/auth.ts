@@ -3,6 +3,7 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import { prisma } from "./prisma";
 import { logAudit } from "./audit";
+import { Role } from "./types";
 
 export const authOptions: AuthOptions = {
   session: { strategy: "jwt", maxAge: 8 * 60 * 60 }, // 8-hour sessions
@@ -42,7 +43,7 @@ export const authOptions: AuthOptions = {
         if (!fresh || fresh.disabled) {
           return {};
         }
-        token.role = fresh.role;
+        token.role = fresh.role as Role;
       }
       return token;
     },

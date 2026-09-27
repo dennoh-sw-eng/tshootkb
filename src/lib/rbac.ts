@@ -1,4 +1,4 @@
-import { Role, Visibility, ArticleStatus } from "./types";
+import { Role, Visibility } from "./types";
 
 /**
  * All authorization lives here so it is enforced once, consistently, on the
@@ -33,7 +33,16 @@ export function canCreateArticle(role: Role) {
   return role !== "VIEWER";
 }
 
-export function canEditArticle(user: SessionUser, article: { authorId: string; status: ArticleStatus }) {
+// NOTE: `status`, `visibility`, `type` below are typed as plain `string`
+// (not the narrower ArticleStatus/Visibility/ArticleType unions) because
+// these fields are stored as String columns in the database (SQLite/many
+// Postgres setups don't get a compile-time guarantee here) and Prisma
+// therefore types them as `string` on query results. The narrower unions
+// in src/lib/types.ts are still the source of truth for *valid* values —
+// enforced by zod at the API boundary — but a function that receives a
+// live Article/Step record needs to accept the wider `string` type Prisma
+// actually returns, or every call site fails to compile.
+export function canEditArticle(user: SessionUser, article: { authorId: string; status: string }) {
   if (isAdmin(user.role)) return true;
   if (user.role === "SENIOR_TECHNICIAN") return true;
   if (user.role === "MID_TECHNICIAN") {
@@ -96,7 +105,7 @@ export function canRestoreVersion(role: Role) {
  */
 export function canViewArticle(
   user: SessionUser | null,
-  article: { visibility: Visibility; status: ArticleStatus; authorId: string }
+  article: { visibility: string; status: string; authorId: string }
 ): boolean {
   if (!user || user.disabled) return false;
 
